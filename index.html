@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Message Board</title>
+</head>
+<body>
+    <h1>Message Board</h1>
+    <form id="messageForm">
+        <textarea id="messageInput" placeholder="Write your message here..." required></textarea>
+        <button type="submit">Send</button>
+    </form>
+    <h2>Messages</h2>
+    <ul id="messageList"></ul>
+
+    <script>
+        const apiUrl = 'http://localhost:5000/messages';
+
+        async function fetchMessages() {
+            const response = await fetch(apiUrl);
+            const messages = await response.json();
+            const messageList = document.getElementById('messageList');
+            messageList.innerHTML = '';
+            messages.forEach(msg => {
+                const li = document.createElement('li');
+                li.textContent = `${msg.content} (${new Date(msg.timestamp).toLocaleString()})`;
+                messageList.appendChild(li);
+            });
+        }
+
+        document.getElementById('messageForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const messageInput = document.getElementById('messageInput');
+            const content = messageInput.value;
+            await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content }),
+            });
+            messageInput.value = '';
+            fetchMessages();
+        });
+
+        fetchMessages();
+    </script>
+</body>
+</html>
